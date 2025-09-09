@@ -1,0 +1,27 @@
+# ⚠️ テスト専用・apply禁止
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: insecure-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: insecure-demo }
+  template:
+    metadata:
+      labels: { app: insecure-demo }
+    spec:
+      hostNetwork: true        # ❌ ホストネットワーク使用
+      containers:
+        - name: app
+          image: nginx:latest  # ❌ latest タグ固定
+          securityContext:
+            privileged: true   # ❌ 特権コンテナ
+            allowPrivilegeEscalation: true  # ❌
+            runAsUser: 0       # ❌ root 実行
+          ports:
+            - containerPort: 80
+          resources: {}        # ❌ リソース制限なし
+          env:
+            - name: SECRET_KEY
+              value: "hard-coded"  # ❌ 平文シークレット
